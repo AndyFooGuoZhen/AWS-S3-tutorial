@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status, File, UploadFile
 from dotenv import load_dotenv
 import os 
 import boto3
@@ -21,20 +21,33 @@ s3_bucket = 'filemanagertutorial'
 #Print contents of a bucket
 # response = s3_client.list_objects_v2(Bucket=s3_bucket)
 # for obj in response['Contents']:
-#     print(obj)
+#     print(obj['Key'])
 
 #Uploding a file
 #Note : ACL is Access Control List, it is set to public-read so that the file is publically accessible
-with open('./Images/senior.png', 'rb') as f:
-    s3_client.upload_fileobj(f, s3_bucket, 'testImage.png', ExtraArgs={'ACL': 'public-read'})
+# TO add to a specific folder just change name of thir parameter
+# EX : s3_client.upload_fileobj(f, s3_bucket , 'Images/testImage.png', ExtraArgs={'ACL': 'public-read'})
+
+# with open('./Images/senior.png', 'rb') as f:
+#     s3_client.upload_fileobj(f, s3_bucket , 'testImage.png', ExtraArgs={'ACL': 'public-read'})
 
 
 
+@app.get("/getFiles")
+async def get_files():
+    response = s3_client.list_objects_v2(Bucket=s3_bucket)
+    files = []
+    for obj in response['Contents']:
+        files.append(obj['Key'])
+    return {"files": files}
 
 
-@app.get("/")
-async def get_hello():
-    print(s3_client.list_buckets())
-    return {"message": "as"}
+@app.post("/uploadFile/", status_code=status.HTTP_201_CREATED)
+async def upload_File (file: UploadFile = File(...)):
+    s3_client.upload_fileobj(file.file, s3_bucket , file.filename, ExtraArgs={'ACL': 'public-read'})
+    return {"message": "File Uploaded Successfully"}
 
-
+@app.delete("/deleteFile/{fileName}", status_code=status.HTTP_200_OK)
+async def delete_file(fileName: str):
+    s3_client.delete_object(Bucket=s3_bucket, Key=fileName)
+    return {"message": "File Deleted Successfully"}
