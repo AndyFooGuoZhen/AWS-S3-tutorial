@@ -1,4 +1,6 @@
 from fastapi import FastAPI, status, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+
 from dotenv import load_dotenv
 import os 
 import boto3
@@ -6,6 +8,18 @@ import boto3
 load_dotenv()
 app = FastAPI()
 # aws_key = os.getenv("AWS_ACCESS_KEY_ID")
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 s3_client = boto3.client(
     's3',
@@ -32,7 +46,6 @@ s3_bucket = 'filemanagertutorial'
 #     s3_client.upload_fileobj(f, s3_bucket , 'testImage.png', ExtraArgs={'ACL': 'public-read'})
 
 
-
 @app.get("/getFiles")
 async def get_files():
     response = s3_client.list_objects_v2(Bucket=s3_bucket)
@@ -46,6 +59,7 @@ async def get_files():
 async def upload_File (file: UploadFile = File(...)):
     s3_client.upload_fileobj(file.file, s3_bucket , file.filename, ExtraArgs={'ACL': 'public-read'})
     return {"message": "File Uploaded Successfully"}
+
 
 @app.delete("/deleteFile/{fileName}", status_code=status.HTTP_200_OK)
 async def delete_file(fileName: str):
