@@ -55,7 +55,7 @@ async def get_files():
     if 'Contents' in response:
         for obj in response['Contents']:
             files.append(obj['Key'])
-            
+
     return {"files": files}
 
 

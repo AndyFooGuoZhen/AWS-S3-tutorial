@@ -9,7 +9,6 @@ function File() {
   const [ files , setFiles ] = React.useState(new Set())
 
   const onDrop = (acceptedFiles)=> {
-    console.log(files)
     const formData = new FormData()
     formData.append('file', acceptedFiles[0])
 
@@ -38,7 +37,6 @@ const fetchAllFiles = ()=>{
     fileService
     .getAllFiles()
     .then((response)=>{
-        console.log(response.data.files)
         if(response.data.files.length>0){
           const tempSet = new Set()
           response.data.files.forEach(tempSet.add, tempSet);
@@ -50,6 +48,18 @@ const fetchAllFiles = ()=>{
         console.log(error)
     })
     }
+
+    const deleteFile = (fileName)=>{
+      fileService
+      .deleteFile(fileName)
+      .then((response)=>{
+        const deleteSet = new Set([...files])
+        deleteSet.delete(fileName)
+        setFiles(deleteSet)
+      }).catch((error)=>{
+
+      })
+    }
     
 
 
@@ -59,8 +69,8 @@ const fetchAllFiles = ()=>{
       <input {...getInputProps()} />
       {
         isDragActive ?
-          <h1 className='text-2xl'>Drop the files here ...</h1> :
-          <h1 className='text-2xl'>Drag 'n' drop some files here, or click to select files</h1>
+          <h1 className='text-2xl'>Drop the file here ...</h1> :
+          <h1 className='text-2xl'>Drag 'n' drop some file here, or click to select file</h1>
       }
     </div>
 
@@ -68,8 +78,9 @@ const fetchAllFiles = ()=>{
       <h1 className='text-2xl mb-4  text-white'> Files in AWS database</h1>
       {files && files.length}
       {files && files.size > 0 ?  Array.from(files).map((file)=>(
-          <div className='w-full bg-slate-400 p-3 rounded-lg mb-3' >
+          <div className='w-full bg-slate-400 p-3 rounded-lg mb-3 flex flex-row justify-between' >
             <h1 className='font-semibold'>{file}</h1>
+            <button className='p-2 rounded-lg bg-slate-500' onClick={()=>deleteFile(file)}>Delete</button>
           </div>
       )) : <></>}
 
