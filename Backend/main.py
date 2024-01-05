@@ -50,8 +50,12 @@ s3_bucket = 'filemanagertutorial'
 async def get_files():
     response = s3_client.list_objects_v2(Bucket=s3_bucket)
     files = []
-    for obj in response['Contents']:
-        files.append(obj['Key'])
+
+    print(response)
+    if 'Contents' in response:
+        for obj in response['Contents']:
+            files.append(obj['Key'])
+            
     return {"files": files}
 
 
