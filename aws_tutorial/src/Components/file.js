@@ -75,7 +75,7 @@ const fetchAllFiles = ()=>{
     </div>
 
     <div className='mt-8 '>
-      <h1 className='text-2xl mb-4  text-white'> Files in AWS database listed below</h1>
+      <h1 className='text-2xl mb-4  text-white'> Files in AWS database listed below : </h1>
       {files && files.length}
       {files && files.size > 0 ?  Array.from(files).map((file)=>(
           <div className='w-full bg-slate-400 p-3 rounded-lg mb-3 flex flex-row justify-between' >
