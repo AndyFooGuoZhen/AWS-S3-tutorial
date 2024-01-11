@@ -59,6 +59,10 @@ async def get_files():
     return {"files": files}
 
 
+@app.get("/testing")
+async def testing():
+    return {"message": "this is a test"}
+
 @app.post("/uploadFile/", status_code=status.HTTP_201_CREATED)
 async def upload_File (file: UploadFile = File(...)):
     s3_client.upload_fileobj(file.file, s3_bucket , file.filename, ExtraArgs={'ACL': 'public-read'})
